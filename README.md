@@ -14,8 +14,8 @@ These instructions will get you a copy of the project up and running on your loc
 ### Installing
 1. Clone the repository and cd into it
 ```bash
-git clone https://github.com/username/project.git
-cd project
+git clone https://github.com/Alban-Kaperi/basic-crm
+cd basic-crm
 ```
 2. Install PHP dependencies
 ```bash
