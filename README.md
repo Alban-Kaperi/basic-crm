@@ -61,3 +61,13 @@ To run the automated tests, run the following command:
 ```bash
 php artisan test
 ```
+
+### Some Screenshots
+
+![Contacts Table](./screenshots/contacts-table.png "Contacts Table")
+![Customer Details](./screenshots/customer-details.png "Customer Details")
+![Contacts Table](./screenshots/customer-details.png "Contacts Table")
+
+
+
+
