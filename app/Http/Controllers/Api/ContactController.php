@@ -1,12 +1,12 @@
 <?php
+namespace App\Http\Controllers\Api;
 
-namespace App\Http\Controllers;
-
-use App\Models\Customer;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\Contact;
 use App\Services\ExceptionHandlerService;
+use Illuminate\Http\Request;
 
-class CustomerController extends Controller
+class ContactController extends Controller
 {
     private ExceptionHandlerService $customException;
 
@@ -22,7 +22,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         try {
-            return Customer::all();
+            return Contact::all();
         }
         catch (\Exception $ex) {
             return $this->customException->handleException($ex);
@@ -35,7 +35,7 @@ class CustomerController extends Controller
     public function search(Request $request)
     {
         try {
-            return Customer::where('name', 'like', '%' . $request->input('search') . '%')
+            return Contact::where('first_name', 'like', '%' . $request->input('search') . '%')
                 ->orderBy('created_at', 'desc')
                 ->paginate(5);
         }
@@ -51,18 +51,18 @@ class CustomerController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'name' => 'required|string|max:60',
-                'address' => 'required|string|max:255',
-                'postal_code' => 'required|string|max:20',
-                'place' => 'required|string|max:255',
+                'first_name' => 'required|string|max:60',
+                'last_name' => 'required|string|max:60',
+                'customer_id' => 'required|exists:customers,id',
                 // the telephone can accept + character, - character, . character,  numbers, white spaces, or parenthesis
                 'telephone' => ['required', 'regex:/^[\+\-0-9\s\(\)\.]+$/'],
                 'email' => 'required|unique:customers,email|email',
             ]);
 
-            $customer = Customer::create($validatedData);
-            return response()->json($customer, 201);
-        } catch (\Exception $ex) {
+            $contact = Contact::create($validatedData);
+            return response()->json($contact, 201);
+        }
+        catch (\Exception $ex) {
             return $this->customException->handleException($ex);
         }
     }
@@ -70,10 +70,10 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer)
+    public function show(Contact $contact)
     {
         try {
-            return $customer->load('contacts');
+            return $contact->with('customer')->findOrFail($contact->id);
         }
         catch (\Exception $ex) {
             return $this->customException->handleException($ex);
@@ -83,21 +83,20 @@ class CustomerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, Contact $contact)
     {
         try {
             $validatedData = $request->validate([
-                'name' => 'required|string|max:60',
-                'address' => 'required|string|max:255',
-                'postal_code' => 'required|string|max:20',
-                'place' => 'required|string|max:255',
+                'first_name' => 'required|string|max:60',
+                'last_name' => 'required|string|max:60',
+                'customer_id' => 'required|exists:customers,id',
                 // the telephone can accept + character, - character, . character,  numbers, white spaces, or parenthesis
                 'telephone' => ['required', 'regex:/^[\+\-0-9\s\(\)\.]+$/'],
                 'email' => 'required|email',
             ]);
 
-            $updatedCustomer=$customer->update($validatedData);
-            return response()->json($updatedCustomer, 200);
+            $updatedContact=$contact->update($validatedData);
+            return response()->json($updatedContact, 200);
         }
         catch (\Exception $ex) {
             return $this->customException->handleException($ex);
@@ -107,15 +106,14 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Customer $customer)
+    public function destroy(Contact $contact)
     {
         try {
-            $customer->delete();
+            $contact->delete();
             return response()->json( 204);
         }
         catch (\Exception $ex) {
             return $this->customException->handleException($ex);
         }
     }
-
 }
